@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { html_beautify, css_beautify } from 'js-beautify'
 
@@ -124,11 +124,18 @@ const Preview = ({ css, onChangeHtml }: {
 }
 
 const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
-
-    const [css, setCss] = useState(defaultCss || '')
+    const textareaRef = useRef(null);
+    const [css, setCss] = useState(css_beautify(defaultCss) || '')
     const [htmlContent, setHtmlContent] = useState('')
 
     const formatHTML = (html: string) => html_beautify(htmlContent, { indent_size: 4 })
+
+    useLayoutEffect(() => {
+        // Reset height - important to shrink on delete
+        textareaRef.current.style.height = "inherit";
+        // Set height
+        textareaRef.current.style.height = `${Math.max(textareaRef.current.scrollHeight, 48)}px`;
+    }, [css]);
 
     return (
         <div className="rounded border-solid border box-border relative m-4 ">
@@ -137,9 +144,11 @@ const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
                 <div className="col-span-1 flex-auto flex flex-col overflow-auto">
                     <div>
                         <textarea
-                            className="bg-transparent outline-none font-mono w-full  h-48"
+                            className="bg-transparent outline-none font-mono w-full p-2 resize-none overflow-hidden"
+                            spellCheck={false}
                             value={css}
                             onChange={(e) => setCss(e.target.value)}
+                            ref={textareaRef}
                         />
                     </div>
 
