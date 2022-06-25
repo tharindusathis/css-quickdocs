@@ -22,6 +22,7 @@ const Template = ({ css, onChangeHtml, siblings = 10, target = 2 }:
             border-radius: 5px;
             overflow: hidden;
             margin: 3%;
+            position: relative;
         }
         
         .sibling, .target {
