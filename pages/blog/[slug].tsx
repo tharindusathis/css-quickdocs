@@ -13,7 +13,7 @@ const PostPage = ({ frontMatter: { title, date }, mdxSource }) => {
   return (
     <div className="mt-4">
       <h1>{title}</h1>
-      <MDXRemote {...mdxSource} components={components}/>
+      <MDXRemote {...mdxSource} components={components} />
     </div>
   )
 }
