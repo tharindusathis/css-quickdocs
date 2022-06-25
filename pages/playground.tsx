@@ -1,7 +1,13 @@
 import InlinePlayground from "../components/InlinePlayground"
 
 const Playground = () => {
-    return <InlinePlayground css=""></InlinePlayground>
+    return ( 
+    <InlinePlayground defaultCss={`
+        position: fixed;
+        left: 150px; 
+        top: 150px;
+        `}></InlinePlayground>
+    )
 }
 
 export default Playground
