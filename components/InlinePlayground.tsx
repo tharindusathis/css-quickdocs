@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { html_beautify, css_beautify } from 'js-beautify'
 
@@ -14,7 +14,6 @@ const Template = ({ css, onChangeHtml, siblings = 10, target = 2 }:
 
     const defaultCss = `
         .container {       
-            height: fit-content;
             background: ${TemplateColors.container};
             color: black;
             position: relative;
@@ -22,7 +21,8 @@ const Template = ({ css, onChangeHtml, siblings = 10, target = 2 }:
             border-radius: 5px;
             overflow: hidden;
             margin: 3%;
-            position: relative;
+            overflow-y: scroll;
+            height: 500px;
         }
         
         .sibling, .target {
@@ -32,6 +32,17 @@ const Template = ({ css, onChangeHtml, siblings = 10, target = 2 }:
             color: white;
             border-radius: 5px;
             margin: 10px 0;
+        }
+
+        .container-tmp {
+            position: absolute;
+            background: none;
+            border: 2px dashed rgb(0,0,255) ;
+        }
+
+        .placeholder {
+            background: none;
+            border: 2px dashed rgb(0,0,255) ;
         }
 
         .target {
@@ -121,7 +132,7 @@ const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
 
     return (
         <div className="rounded border-solid border box-border relative m-4 ">
-            <div className=" grid grid-cols-2  w-full "
+            <div className=" grid grid-cols-1 md:grid-cols-2  w-full "
             >
                 <div className="col-span-1 flex-auto flex flex-col overflow-auto">
                     <div>
@@ -149,7 +160,7 @@ const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
                         </pre>
                     </div>
                 </div>
-                <div className="col-span-1 border-l border-gray-200  p-3 min-h-40 bg-gray-50">
+                <div className="col-span-1 border-l border-gray-200  p-3 h-96 max-h-fit md:h-full  md:max-h-full bg-gray-50">
                     <Preview css={css}
                         onChangeHtml={html => setHtmlContent(html)}
                     />

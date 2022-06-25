@@ -1,9 +1,9 @@
 import Nav from './Nav'
-import Button from './Button'
 import InlinePlayground from './InlinePlayground'
+import Sidebar from './Sidebar'
 
 export {
     Nav,
-    Button,
+    Sidebar,
     InlinePlayground
 }
