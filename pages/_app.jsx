@@ -9,7 +9,7 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>CSS quickbook</title>
       </Head>
-      <div className="bg-red-200 p-8">
+      <div className="p-8">
         <Nav />
         <main>
           <Component {...pageProps} />
