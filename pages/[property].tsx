@@ -39,11 +39,11 @@ const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLEleme
       return false;
     });
 
-    const target_block = (target_rule as csstree.Rule)?.block;
+    const target_block = (target_rule as csstree.Rule);
 
     let target_css = '';
-    if (target_block) {
-      target_css = csstree.generate(target_block)?.replace('{', '').replace('}', '') || '';
+    if (target_rule) {
+      target_css = csstree.generate(target_rule) || '';
     }
     console.log("block", target_css);
     return <InlinePlayground targetCss={target_css} nSiblings={nSiblings} idxTarget={idxTarget}></InlinePlayground>

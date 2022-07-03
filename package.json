@@ -11,12 +11,14 @@
   "dependencies": {
     "@mdx-js/loader": "^2.1.1",
     "@next/mdx": "^12.1.6",
+    "ace-builds": "^1.7.1",
     "css-tree": "^2.1.0",
     "date-fns": "^2.28.0",
     "gray-matter": "^4.0.3",
     "js-beautify": "^1.14.3",
     "next": "^12.1.7-canary.41",
     "react": "18.1.0",
+    "react-ace": "^10.1.0",
     "react-dom": "18.1.0",
     "remark": "^14.0.2",
     "remark-html": "^15.0.1"

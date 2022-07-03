@@ -3,24 +3,28 @@
 @tailwind utilities;
 
 @layer utilities {
-    .scrollbar::-webkit-scrollbar {
-      width: 20px;
-      height: 20px;
+    /*scrollbar */
+    
+    *::-webkit-scrollbar {
+      @apply bg-transparent w-[12px] h-[12px];
     }
-  
-    .scrollbar::-webkit-scrollbar-track {
-      border-radius: 100vh;
-      background: #f7f4ed;
+
+    * {
+      scrollbar-width: thin;
     }
-  
-    .scrollbar::-webkit-scrollbar-thumb {
-      background: #e0cbcb;
-      border-radius: 100vh;
-      border: 3px solid #f6f7ed;
+
+    *::-webkit-scrollbar-thumb {
+      transition: background .2s ease-in-out;
+      border: 3px solid transparent;
+      @apply bg-gray-200  rounded-full bg-clip-content;
     }
-  
-    .scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #c0a0b9;
+
+    *::-webkit-scrollbar-thumb:hover {
+      @apply bg-gray-300 ;
+    }
+
+    *::-webkit-scrollbar-corner {
+      @apply bg-transparent;
     }
   }
   

@@ -1,6 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { html_beautify, css_beautify } from 'js-beautify'
+
+import dynamic from 'next/dynamic';
+
+const Editor = dynamic(() => import('./Editor'), {
+    ssr: false,
+});
 
 const formatHTML = (html: string) => html_beautify(html, { indent_size: 2 })
 const formatCSS = (css: string) => css_beautify(css, { indent_size: 2 })
@@ -22,6 +28,38 @@ const PreviewTheme: {
 }
 
 const themeCss = `
+/* scrollbar */
+
+*::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+  background-color: transparent;
+}
+
+* {
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar-thumb {
+  -webkit-transition: background .2s ease-in-out;
+  transition: background .2s ease-in-out;
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
+*::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+
 .${CssClass.Container} {       
     background: ${PreviewTheme[CssClass.Container]};
     color: black;
@@ -119,7 +157,6 @@ const PreviewContent = ({ nSiblings, idxTarget }: PreviewContentProps) => (
 )
 
 const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: PlaygroundProps) => {
-    const textareaRef = useRef(null);
     const [targetCssRaw, setTargetCssRaw] = useState(formatCSS(targetCss) || '');
     const [targetCssValue, setTargetCssValue] = useState(targetCssRaw);
 
@@ -133,17 +170,8 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
         return () => clearTimeout(timeOutId);
     }, [targetCssRaw]);
 
-    useEffect(() => {
-        // Reset height - important to shrink on delete
-        textareaRef.current.style.height = "inherit";
-        // Set height
-        textareaRef.current.style.height = `${Math.max(textareaRef.current.scrollHeight, 48)}px`;
-    }, [targetCss]);
-
     const customCss = `
-        .${CssClass.Target} {
-            ${targetCssValue}
-        }
+        ${targetCssValue}
     `;
 
     const previewContentStr = useMemo(() =>
@@ -167,17 +195,12 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
 
     return (
         <div className="rounded border-solid border box-border relative m-4 ">
-            <div className=" grid grid-cols-1 md:grid-cols-2  w-full "
-            >
+            <div className=" grid grid-cols-1 md:grid-cols-2  w-full ">
                 <div className="col-span-1 flex-auto flex flex-col overflow-auto">
                     <div>
-                        <textarea
-                            className="bg-transparent outline-none font-mono w-full p-2 resize-none overflow-hidden"
-                            spellCheck={false}
-                            value={targetCssRaw}
-                            onChange={(e) => setTargetCssRaw(formatCSS(e.target.value))}
-                            ref={textareaRef}
-                        />
+                        <div className='p-3'>
+                            <Editor value={targetCssRaw} onChange={(value) => setTargetCssRaw(formatCSS(value))} />
+                        </div>
                     </div>
 
                     <div className="text-sm border-t border-gray-200">
@@ -192,7 +215,7 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
                             </div>
                         </div>
                         <pre
-                            className="bg-transparent max-h-30em px-4 py-4">
+                            className="bg-transparent max-h-30em p-3">
                             {formatHTML(previewContentStr)}
                         </pre>
                     </div>
