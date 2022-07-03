@@ -4,7 +4,7 @@ import "ace-builds/src-noconflict/mode-css";
 import "ace-builds/src-noconflict/theme-xcode";
 import "ace-builds/src-noconflict/ext-language_tools";
 
-const Editor = ({ value, onChange }: { value: string; onChange(value: string): void }) => {
+const Editor = ({ value, onChange }: { value?: string; onChange(value: string): void }) => {
     return (
         <div >
             <AceEditor
@@ -22,7 +22,7 @@ const Editor = ({ value, onChange }: { value: string; onChange(value: string): v
                 value={value}
                 setOptions={{
                     enableBasicAutocompletion: true,
-                    enableLiveAutocompletion: false,
+                    enableLiveAutocompletion: true,
                     enableSnippets: false,
                     showLineNumbers: true,
                     tabSize: 2,

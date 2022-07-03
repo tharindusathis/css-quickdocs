@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { html_beautify, css_beautify } from 'js-beautify'
-
+import { IoCopyOutline } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
 
 const Editor = dynamic(() => import('./Editor'), {
@@ -157,28 +157,21 @@ const PreviewContent = ({ nSiblings, idxTarget }: PreviewContentProps) => (
 )
 
 const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: PlaygroundProps) => {
-    const [targetCssRaw, setTargetCssRaw] = useState(formatCSS(targetCss) || '');
-    const [targetCssValue, setTargetCssValue] = useState(targetCssRaw);
 
-    useEffect(() => {
-        /*  To delay change state while typing...
-            https://stackoverflow.com/questions/53071774/reactjs-delay-onchange-while-typing 
-        */
-        const timeOutId = setTimeout(() => {
-            setTargetCssValue(targetCssRaw);
-        }, 500);
-        return () => clearTimeout(timeOutId);
-    }, [targetCssRaw]);
+    const targetCssInitialValue = useMemo(() => formatCSS(targetCss) || '', [targetCss]);
+    const [targetCssValue, setTargetCssValue] = useState(targetCssInitialValue || '');
 
-    const customCss = `
-        ${targetCssValue}
-    `;
+    const isTargetCssValueChanged = useMemo(() => targetCssValue !== targetCssInitialValue, [targetCssValue, targetCssInitialValue]);
 
     const previewContentStr = useMemo(() =>
         ReactDOMServer.renderToString(
             <PreviewContent nSiblings={nSiblings} idxTarget={idxTarget} />
         ),
         [nSiblings, idxTarget]);
+
+    const customCss = `
+        ${targetCssValue}
+    `;
 
     const PreviewTemplete = () => (
         <div >
@@ -199,7 +192,9 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
                 <div className="col-span-1 flex-auto flex flex-col overflow-auto">
                     <div>
                         <div className='p-3'>
-                            <Editor value={targetCssRaw} onChange={(value) => setTargetCssRaw(formatCSS(value))} />
+                            <Editor value=
+                                {isTargetCssValueChanged ? undefined : targetCssInitialValue}
+                                onChange={(value) => setTargetCssValue((value))} />
                         </div>
                     </div>
 
@@ -211,8 +206,7 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
                                 <span className="text-sm mr-1.5 capitalize"></span>
 
                             </div>
-                            <div className="icon-button ml-3" title="Copy">
-                            </div>
+                            {/* <IoCopyOutline className="text-sm ml-3 items-center" /> */}
                         </div>
                         <pre
                             className="bg-transparent max-h-30em p-3">
@@ -220,7 +214,7 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
                         </pre>
                     </div>
                 </div>
-                <div className="col-span-1 border-l border-gray-200  p-3 h-96 max-h-fit md:h-full  md:max-h-full bg-gray-50">
+                <div className="col-span-1 border-l border-gray-200  p-3 h-96 max-h-fit md:h-full md:max-h-full w- min-h-[24rem] bg-gray-50">
                     <Preview previewTemplate={<PreviewTemplete />} />
                 </div>
             </div>

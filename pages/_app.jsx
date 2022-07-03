@@ -9,13 +9,10 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>CSS quickdocs</title>
       </Head>
-      <div>
-        <div className="grid grid-cols-4"></div>
         <Nav />
         <main>
           <Component {...pageProps} />
         </main>
-      </div>
     </>
   )
 }

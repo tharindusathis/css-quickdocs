@@ -6,9 +6,10 @@ import matter from 'gray-matter'
 import { MDXProvider } from '@mdx-js/react';
 
 
-import { Nav, InlinePlayground } from '../components'
+import { Nav, InlinePlayground, Sidebar } from '../components'
 import { DetailedHTMLProps, HTMLAttributes, useMemo } from 'react'
 import * as csstree from 'css-tree';
+
 type MDXComponents = React.ComponentProps<typeof MDXProvider>['components']
 
 const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) => {
@@ -61,14 +62,20 @@ const components: MDXComponents = {
   code: (props) => <MdxCode {...props}></MdxCode>
 }
 
-const Page = ({ frontMatter: { title, description }, mdxSource }) => {
+const Page = ({ frontMatter: { title, description }, mdxSource, allPaths }) => {
   return (
-    <div className="m-8">
-      <h1 className="inline-block font-extrabold text-2xl leading-8 m-0 tracking-tight sm:text-3xl sm:leading-9">{title}</h1>
-      <p className="text-lg leading-7 mx-0 mb-0 my-2">
-        {description}
-      </p>
-      <MDXRemote {...mdxSource} components={components} />
+    <div className="flex">
+      {/* TODO: move sidebar to an HOC */}
+      <Sidebar links={{
+        "CSS Properties": allPaths,
+      }} />
+      <div className="w-full">
+        <h1 className="inline-block font-extrabold text-2xl leading-8 m-0 tracking-tight sm:text-3xl sm:leading-9">{title}</h1>
+        <p className="text-lg leading-7 mx-0 mb-0 my-2">
+          {description}
+        </p>
+        <MDXRemote {...mdxSource} components={components} />
+      </div>
     </div>
   )
 }
@@ -99,7 +106,8 @@ const getStaticProps = async ({ params: { property } }) => {
     props: {
       frontMatter,
       property,
-      mdxSource
+      mdxSource,
+      allPaths: (await getStaticPaths()).paths.map(p => p.params.property)
     }
   }
 }
