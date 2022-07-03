@@ -41,7 +41,7 @@ const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLEleme
       target_css = csstree.generate(target_block)?.replace('{', '').replace('}', '') || '';
     }
     console.log("block", target_css);
-    return <InlinePlayground defaultCss={target_css}></InlinePlayground>
+    return <InlinePlayground targetCss={target_css}></InlinePlayground>
   }
 
   return (

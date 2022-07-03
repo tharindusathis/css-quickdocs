@@ -1,96 +1,81 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { html_beautify, css_beautify } from 'js-beautify'
 
-const TemplateColors = {
-    'viewport': '#ffffff',
-    'container': '#F2F5FF',
-    'sibling': '#FFC9B5',
-    'target': '#10b981DD'
+const formatHTML = (html: string) => html_beautify(html, { indent_size: 2 })
+const formatCSS = (css: string) => css_beautify(css, { indent_size: 2 })
+
+enum CssClass {
+    Viewport = 'viewport',
+    Container = 'container',
+    Sibling = 'sibling',
+    Target = 'target',
 }
 
-const Template = ({ css, onChangeHtml, siblings = 10, target = 2 }:
-    { css: string; onChangeHtml?: (html: string) => void; siblings?: number; target?: number }) => {
-
-    const defaultCss = `
-        .container {       
-            background: ${TemplateColors.container};
-            color: black;
-            position: relative;
-            padding: 0 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 3%;
-            overflow-y: scroll;
-            height: 500px;
-        }
-        
-        .sibling, .target {
-            width: 100%;
-            height: 100px;
-            background: ${TemplateColors.sibling};
-            color: white;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-
-        .container-tmp {
-            position: absolute;
-            background: none;
-            border: 2px dashed rgb(0,0,255) ;
-        }
-
-        .placeholder {
-            background: none;
-            border: 2px dashed rgb(0,0,255) ;
-        }
-
-        .target {
-            background: ${TemplateColors.target};
-        }
-    `
-    const customCss = `
-        .target {
-            ${css}
-        }
-    `
-    const Content = () => (
-        <div className="container">
-            {
-                Array.from({ length: siblings }, (_, i) =>
-                    <div className={i + 1 == target ? 'target' : 'sibling'} key={i}></div>
-                )
-            }
-        </div>
-    )
-
-    onChangeHtml && onChangeHtml(ReactDOMServer.renderToString(<Content />))
-
-
-    return (
-        <div >
-            {/* default styling */}
-            <style dangerouslySetInnerHTML={{ __html: defaultCss }}></style>
-
-            {/* custom styling */}
-            <style dangerouslySetInnerHTML={{ __html: customCss }}></style>
-
-            {/* content */}
-            <Content />
-        </div>
-    )
+const PreviewTheme: {
+    [key in CssClass]: string;
+} = {
+    [CssClass.Viewport]: '#ffffff',
+    [CssClass.Container]: '#F2F5FF',
+    [CssClass.Sibling]: '#FFC9B5',
+    [CssClass.Target]: '#10b981DD'
 }
 
-const Preview = ({ css, onChangeHtml }: {
-    css: string;
-    onChangeHtml?: (html: string) => void;
+const themeCss = `
+.${CssClass.Container} {       
+    background: ${PreviewTheme[CssClass.Container]};
+    color: black;
+    position: relative;
+    padding: 0 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 3%;
+    overflow-y: scroll;
+    height: 500px;
+}
+
+.${CssClass.Sibling}, .${CssClass.Target} {
+    width: 100%;
+    height: 100px;
+    background: ${PreviewTheme[CssClass.Sibling]};
+    color: white;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.placeholder {
+    background: none;
+    border: 2px dashed rgb(0,0,255) ;
+}
+
+.${CssClass.Target} {
+    background: ${PreviewTheme[CssClass.Target]};
+}
+`;
+
+interface PreviewContentProps {
+    /**
+    * Number of siblings of target including the `Target`.
+    */
+    nSiblings: number;
+
+    /**
+     * Index of the `Target` in the `Target`s siblings.
+     */
+    idxTarget: number;
+}
+interface PlaygroundProps extends PreviewContentProps {
+    /**
+     * The CSS to be injected into the `Target`.
+     */
+    targetCss: string;
+}
+
+const Preview = ({ previewTemplate }: {
+    previewTemplate: JSX.Element;
 }) => {
 
-    const cssMemo = useMemo(() => {
-        return css_beautify(css, {})
-    }, [css])
-
-    const srcDoc = <Template css={cssMemo} onChangeHtml={html => onChangeHtml && onChangeHtml(html)} />;
+    const srcDoc = useMemo(() => ReactDOMServer.renderToString(previewTemplate), [previewTemplate])
     const LegendItem = ({ color, label }) => {
         return (
             <div className='flex items-center'>
@@ -110,11 +95,11 @@ const Preview = ({ css, onChangeHtml }: {
             </div>
             <iframe
                 className='w-full h-full'
-                style={{ background: TemplateColors.viewport }}
-                srcDoc={ReactDOMServer.renderToString(srcDoc)} />
+                style={{ background: PreviewTheme.viewport }}
+                srcDoc={srcDoc} />
             <div className='w-full h-6 py-1.5 px-3 flex justify-around gap-1.5 bg-gray-100/0 border-t border-gray-200'>
                 {
-                    Object.entries(TemplateColors).reverse().map(([key, value]) => (
+                    Object.entries(PreviewTheme).reverse().map(([key, value]) => (
                         <LegendItem label={key} key={key} color={value} />
                     ))
                 }
@@ -123,19 +108,62 @@ const Preview = ({ css, onChangeHtml }: {
     )
 }
 
-const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
-    const textareaRef = useRef(null);
-    const [css, setCss] = useState(css_beautify(defaultCss) || '')
-    const [htmlContent, setHtmlContent] = useState('')
+const PreviewContent = ({ nSiblings, idxTarget }: PreviewContentProps) => (
+    <div className={CssClass.Container}>
+        {
+            Array.from({ length: nSiblings }, (_, i) =>
+                <div className={i + 1 == idxTarget ? CssClass.Target : CssClass.Sibling} key={i}></div>
+            )
+        }
+    </div>
+)
 
-    const formatHTML = (html: string) => html_beautify(htmlContent, { indent_size: 4 })
+const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: PlaygroundProps) => {
+    const textareaRef = useRef(null);
+    const [targetCssRaw, setTargetCssRaw] = useState(formatCSS(targetCss) || '');
+    const [targetCssValue, setTargetCssValue] = useState(targetCssRaw);
+
+    useEffect(() => {
+        /*  To delay change state while typing...
+            https://stackoverflow.com/questions/53071774/reactjs-delay-onchange-while-typing 
+        */
+        const timeOutId = setTimeout(() => {
+            setTargetCssValue(targetCssRaw);
+        }, 500);
+        return () => clearTimeout(timeOutId);
+    }, [targetCssRaw]);
 
     useLayoutEffect(() => {
         // Reset height - important to shrink on delete
         textareaRef.current.style.height = "inherit";
         // Set height
         textareaRef.current.style.height = `${Math.max(textareaRef.current.scrollHeight, 48)}px`;
-    }, [css]);
+    }, [targetCss]);
+
+    const customCss = `
+        .${CssClass.Target} {
+            ${targetCssValue}
+        }
+    `;
+
+    const previewContentStr = useMemo(() =>
+        ReactDOMServer.renderToString(
+            <PreviewContent nSiblings={nSiblings} idxTarget={idxTarget} />
+        ),
+        [nSiblings, idxTarget]);
+
+    const PreviewTemplete = () => (
+        <div >
+            {/* default styling */}
+            <style dangerouslySetInnerHTML={{ __html: themeCss }}></style>
+
+            {/* custom styling */}
+            <style dangerouslySetInnerHTML={{ __html: customCss }}></style>
+
+            {/* content */}
+            <PreviewContent nSiblings={nSiblings} idxTarget={idxTarget} />
+        </div>
+    )
 
     return (
         <div className="rounded border-solid border box-border relative m-4 ">
@@ -146,8 +174,8 @@ const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
                         <textarea
                             className="bg-transparent outline-none font-mono w-full p-2 resize-none overflow-hidden"
                             spellCheck={false}
-                            value={css}
-                            onChange={(e) => setCss(e.target.value)}
+                            value={targetCssRaw}
+                            onChange={(e) => setTargetCssRaw(formatCSS(e.target.value))}
                             ref={textareaRef}
                         />
                     </div>
@@ -165,14 +193,12 @@ const InlinePlayground = ({ defaultCss }: { defaultCss?: string }) => {
                         </div>
                         <pre
                             className="bg-transparent max-h-30em px-4 py-4">
-                            {formatHTML(htmlContent)}
+                            {formatHTML(previewContentStr)}
                         </pre>
                     </div>
                 </div>
                 <div className="col-span-1 border-l border-gray-200  p-3 h-96 max-h-fit md:h-full  md:max-h-full bg-gray-50">
-                    <Preview css={css}
-                        onChangeHtml={html => setHtmlContent(html)}
-                    />
+                    <Preview previewTemplate={<PreviewTemplete />} />
                 </div>
             </div>
         </div>
