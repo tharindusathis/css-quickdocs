@@ -19,12 +19,12 @@ const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLEleme
     const REGEX = /i-(\d+)/;
     const val = classNames.find(c => REGEX.test(c))?.match(REGEX)[1];
     return val ? parseInt(val) : undefined;
-  }, []);
+  }, [classNames]);
   const nSiblings = useMemo(() => {
     const REGEX = /s-(\d+)/;
     const val = classNames.find(c => REGEX.test(c))?.match(REGEX)[1];
     return val ? parseInt(val) : undefined;
-  }, []);
+  }, [classNames]);
 
   if (classNames.includes('language-css') && classNames.includes('playground')) {
     const css = props.children.toString();
