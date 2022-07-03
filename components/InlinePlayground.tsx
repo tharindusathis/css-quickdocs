@@ -53,7 +53,7 @@ const themeCss = `
 }
 `;
 
-interface PreviewContentProps {
+type PreviewContentProps = {
     /**
     * Number of siblings of target including the `Target`.
     */
@@ -64,7 +64,7 @@ interface PreviewContentProps {
      */
     idxTarget: number;
 }
-interface PlaygroundProps extends PreviewContentProps {
+type PlaygroundProps = Partial<PreviewContentProps> & {
     /**
      * The CSS to be injected into the `Target`.
      */
@@ -133,7 +133,7 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
         return () => clearTimeout(timeOutId);
     }, [targetCssRaw]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         // Reset height - important to shrink on delete
         textareaRef.current.style.height = "inherit";
         // Set height

@@ -7,18 +7,23 @@ import { MDXProvider } from '@mdx-js/react';
 
 
 import { Nav, InlinePlayground } from '../components'
-import { DetailedHTMLProps, HTMLAttributes } from 'react'
+import { DetailedHTMLProps, HTMLAttributes, useMemo } from 'react'
 import * as csstree from 'css-tree';
 type MDXComponents = React.ComponentProps<typeof MDXProvider>['components']
 
-
 const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) => {
-  let classNames = (props.className || '').split(',').map(c => c.trim().toLowerCase());
+  const classNames = (props.className || '').split(',').map(c => c.trim().toLowerCase());
 
-  // const isPresent = (className: string) => classNames.includes(className);
-
-  console.log(classNames);
-  console.log(classNames.includes('language-css'))
+  const idxTarget = useMemo(() => {
+    const REGEX = /i-(\d+)/;
+    const val = classNames.find(c => REGEX.test(c))?.match(REGEX)[1];
+    return val ? parseInt(val) : undefined;
+  }, []);
+  const nSiblings = useMemo(() => {
+    const REGEX = /s-(\d+)/;
+    const val = classNames.find(c => REGEX.test(c))?.match(REGEX)[1];
+    return val ? parseInt(val) : undefined;
+  }, []);
 
   if (classNames.includes('language-css') && classNames.includes('playground')) {
     const css = props.children.toString();
@@ -41,7 +46,7 @@ const MdxCode = (props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLEleme
       target_css = csstree.generate(target_block)?.replace('{', '').replace('}', '') || '';
     }
     console.log("block", target_css);
-    return <InlinePlayground targetCss={target_css}></InlinePlayground>
+    return <InlinePlayground targetCss={target_css} nSiblings={nSiblings} idxTarget={idxTarget}></InlinePlayground>
   }
 
   return (
