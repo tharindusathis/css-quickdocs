@@ -6,8 +6,9 @@ import matter from 'gray-matter'
 import { MDXProvider } from '@mdx-js/react';
 
 
-import { Nav, InlinePlayground, Sidebar } from '../components'
+import { Nav, InlinePlayground, Sidebar, Todo } from '../components'
 import { DetailedHTMLProps, HTMLAttributes, useMemo } from 'react'
+import { HiOutlineExternalLink } from 'react-icons/hi'
 import * as csstree from 'css-tree';
 
 type MDXComponents = React.ComponentProps<typeof MDXProvider>['components']
@@ -59,22 +60,27 @@ const components: MDXComponents = {
   Nav,
   InlinePlayground,
   h1: (props) => <h1 {...props} className="flex font-semibold text-xl mr-0 mt-10 mb-2.5 -ml-4 pl-4 tracking-tight whitespace-pre-wrap" ></h1>,
-  code: (props) => <MdxCode {...props}></MdxCode>
+  code: (props) => <MdxCode {...props}></MdxCode>,
+  Todo
 }
 
-const Page = ({ frontMatter: { title, description }, mdxSource, allPaths }) => {
+const Page = ({ frontMatter: { title, description }, mdxSource, sidebarPaths }) => {
   return (
     <div className="flex">
       {/* TODO: move sidebar to an HOC */}
-      <Sidebar links={{
-        "CSS Properties": allPaths,
-      }} />
-      <div className="w-full">
-        <h1 className="inline-block font-extrabold text-2xl leading-8 m-0 tracking-tight sm:text-3xl sm:leading-9">{title}</h1>
-        <p className="text-lg leading-7 mx-0 mb-0 my-2">
-          {description}
-        </p>
+      <div className="overflow-y-auto overflow-hidden z-20 min-w-fit max-h-screen sticky top-6">
+        <Sidebar links={sidebarPaths} />
+      </div>
+      <div className="w-full p-4">
+        <h1 className="inline-block font-bold text-2xl leading-8 mb-8 tracking-tight sm:text-3xl sm:leading-9">
+          {title}
+        </h1>
         <MDXRemote {...mdxSource} components={components} />
+        <div className='text-blue-500 cursor-pointer py-2 font-semibold'>
+          <a href={`https://github.com/tharindusathis/css-quickdocs/tree/main/docs/css-properties/${title}.mdx`}>Edit this page on GitHub
+            <HiOutlineExternalLink className='inline ml-2 -mt-1 w-5 h-5' />
+          </a>
+        </div>
       </div>
     </div>
   )
@@ -102,12 +108,27 @@ const getStaticProps = async ({ params: { property } }) => {
   const { data: frontMatter, content } = matter(markdownWithMeta)
   const mdxSource = await serialize(content)
 
+  const allFrontMatters = fs.readdirSync(path.join('docs', 'css-properties')).map(
+    filename => {
+      const mdx = fs.readFileSync(path.join('docs', 'css-properties', filename), 'utf-8');
+      const { data } = matter(mdx);
+      return data;
+    }
+  )
+
+  let sidebarPaths = {
+  };
+
+  allFrontMatters.forEach(frontMatter => {
+    sidebarPaths[frontMatter.tags[0]] = [...(sidebarPaths[frontMatter.tags[0]] || []), frontMatter.title];
+  });
+
   return {
     props: {
       frontMatter,
       property,
       mdxSource,
-      allPaths: (await getStaticPaths()).paths.map(p => p.params.property)
+      sidebarPaths
     }
   }
 }

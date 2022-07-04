@@ -6,7 +6,8 @@ import Link from 'next/link'
 const Home = ({ pages }) => {
   return (
     <div className="m-4">
-      {pages.map((page, index) => (
+      {pages.map((page, index) => 
+        page.frontMatter.description !== 'TODO' && (
         <Link href={'/' + page.property} passHref key={index}>
           <div className="cursor-pointer my-4">
                   <h5>{page.frontMatter.title}</h5>
