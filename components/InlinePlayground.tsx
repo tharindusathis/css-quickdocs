@@ -187,7 +187,7 @@ const InlinePlayground = ({ targetCss, nSiblings = 10, idxTarget = 2 }: Playgrou
     )
 
     return (
-        <div className="rounded border-solid border box-border relative m-4 ">
+        <div className="rounded border-solid border box-border relative m-4">
             <div className=" grid grid-cols-1 md:grid-cols-2  w-full ">
                 <div className="col-span-1 flex-auto flex flex-col overflow-auto">
                     <div>

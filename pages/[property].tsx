@@ -5,11 +5,10 @@ import path from 'path'
 import matter from 'gray-matter'
 import { MDXProvider } from '@mdx-js/react';
 
-
-import { Nav, InlinePlayground, Sidebar, Todo } from '../components'
+import { Nav, InlinePlayground, Todo, EditOnGitHub } from '../components'
 import { DetailedHTMLProps, HTMLAttributes, useMemo } from 'react'
-import { HiOutlineExternalLink } from 'react-icons/hi'
 import * as csstree from 'css-tree';
+import WithSidebar from '../layouts/WithSidebar'
 
 type MDXComponents = React.ComponentProps<typeof MDXProvider>['components']
 
@@ -66,23 +65,15 @@ const components: MDXComponents = {
 
 const Page = ({ frontMatter: { title, description }, mdxSource, sidebarPaths }) => {
   return (
-    <div className="flex">
-      {/* TODO: move sidebar to an HOC */}
-      <div className="overflow-y-auto overflow-hidden z-20 min-w-fit max-h-screen sticky top-6">
-        <Sidebar links={sidebarPaths} />
-      </div>
-      <div className="w-full p-4">
+    <WithSidebar navList={sidebarPaths}>
+      <div className='p-4'>
         <h1 className="inline-block font-bold text-2xl leading-8 mb-8 tracking-tight sm:text-3xl sm:leading-9">
           {title}
         </h1>
         <MDXRemote {...mdxSource} components={components} />
-        <div className='text-blue-500 cursor-pointer py-2 font-semibold'>
-          <a href={`https://github.com/tharindusathis/css-quickdocs/tree/main/docs/css-properties/${title}.mdx`}>Edit this page on GitHub
-            <HiOutlineExternalLink className='inline ml-2 -mt-1 w-5 h-5' />
-          </a>
-        </div>
+        <EditOnGitHub href={`https://github.com/tharindusathis/css-quickdocs/tree/main/docs/css-properties/${title}.mdx`} />
       </div>
-    </div>
+    </WithSidebar>
   )
 }
 
