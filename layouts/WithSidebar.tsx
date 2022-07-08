@@ -31,11 +31,11 @@ const WithSidebar = ({ children, navList }: { children: React.ReactNode, navList
                 </div>
             </nav>
             <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8">
-                <div className={`hidden bg-white lg:block fixed z-20 inset-0 top-[3.8125rem] left-[max(0px,calc(50%-45rem))] right-auto w-72 pb-10 px-8 overflow-y-auto`}
+                <div className="hidden bg-white lg:block fixed z-20 inset-0 top-[3.8125rem] right-auto w-72 pb-10 px-8 overflow-y-auto"
                     onClick={() => setNavIsOpen(false)}>
                     <Sidebar links={navList} />
                 </div>
-                <div className="lg:pl-72 w-full z-0 lg:relative overflow-y-auto overflow-hidden h-screen">
+                <div className="lg:pl-72">
                     {children}
                 </div>
             </div>
