@@ -116,26 +116,26 @@ const Preview = ({ previewTemplate }: {
     const srcDoc = useMemo(() => ReactDOMServer.renderToString(previewTemplate), [previewTemplate])
     const LegendItem = ({ color, label }) => {
         return (
-            <div className='flex items-center'>
+            <div title={label} className='flex items-center'>
                 <div className='h-3 w-3 rounded ring-1 ring-gray-300 align-middle '
                     style={{ background: color }}
                 ></div>
-                <div className='ml-2 text-xs align-text-top text-gray-500'>{label}</div>
+                <div className='ml-2 w-18 md:w-10 text-xs align-text-top text-gray-500 truncate ...'>{label}</div>
             </div>
         )
     }
     return (
         <div className='shadow-lg rounded-xl overflow-hidden w-full h-full flex flex-col'>
-            <div className='bg-white-100 w-full h-6 py-1.5 px-3 flex gap-1.5 bg-white border-b border-gray-200'>
-                <div className="rounded-full h-3 w-3 bg-red-400"></div>
-                <div className="rounded-full h-3 w-3 bg-yellow-400"></div>
-                <div className="rounded-full h-3 w-3 bg-green-400"></div>
+            <div className='bg-white-100 w-full h-6 py-1.5 px-3 flex bg-white border-b border-gray-200'>
+                <div className="rounded-full h-3 w-3 mr-1.5 bg-red-400"></div>
+                <div className="rounded-full h-3 w-3 mr-1.5 bg-yellow-400"></div>
+                <div className="rounded-full h-3 w-3 mr-1.5 bg-green-400"></div>
             </div>
             <iframe
                 className='w-full h-full'
                 style={{ background: PreviewTheme.viewport }}
                 srcDoc={srcDoc} />
-            <div className='w-full h-6 py-1.5 px-3 flex justify-around gap-1.5 bg-gray-100/0 border-t border-gray-200'>
+            <div className='w-full h-fit py-1 px-3 flex flex-wrap justify-around gap-1.5 bg-gray-100/0 border-t border-gray-200'>
                 {
                     Object.entries(PreviewTheme).reverse().map(([key, value]) => (
                         <LegendItem label={key} key={key} color={value} />
